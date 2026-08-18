@@ -23,7 +23,10 @@ async function loadOrderDetail(id) {
 function renderOrderDetail(order) {
     // Basic Timestamps
     document.getElementById('order-date-text').textContent = formatDate(order.order_date);
-    document.getElementById('due-date-text').textContent = formatDate(order.due_date);
+    document.getElementById('due-date-text').innerHTML = `
+        <div style="margin-bottom: 6px;">${formatDate(order.due_date)}</div>
+        <div class="sla-countdown" data-due="${order.due_date}" data-status="${order.status}"></div>
+    `;
     
     // Priority Badges
     const priorityBadge = document.getElementById('priority-tag-text');

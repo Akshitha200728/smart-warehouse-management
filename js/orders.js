@@ -46,7 +46,10 @@ function renderOrdersTable(orders) {
             <td style="font-weight: 600;">${order.customer}</td>
             <td>${order.customer_type}</td>
             <td>${formatDate(order.order_date)}</td>
-            <td>${formatDate(order.due_date)}</td>
+            <td>
+                <div style="font-size:12px; margin-bottom:4px;">${formatDate(order.due_date)}</div>
+                <div class="sla-countdown" data-due="${order.due_date}" data-status="${order.status}"></div>
+            </td>
             <td><span class="badge ${getPriorityBadgeClass(order.priority_score)}">${order.priority}</span></td>
             <td style="font-weight: 700;">${order.priority_score.toFixed(0)}</td>
             <td><span class="badge ${order.allocation_status.toLowerCase().replace(' ', '-')}">${order.allocation_status}</span></td>

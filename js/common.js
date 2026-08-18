@@ -316,3 +316,47 @@ const keyframes = `
 const styleEl = document.createElement('style');
 styleEl.textContent = keyframes;
 document.head.appendChild(styleEl);
+
+// Global SLA countdown updater
+setInterval(updateSLACountdowns, 1000);
+
+function updateSLACountdowns() {
+    const elements = document.querySelectorAll('.sla-countdown');
+    elements.forEach(el => {
+        const dueStr = el.getAttribute('data-due');
+        const status = el.getAttribute('data-status');
+        
+        if (!dueStr) return;
+        
+        if (status === 'Dispatched' || status === 'Cancelled') {
+            el.innerHTML = `<span class="badge healthy" style="font-size:10px; font-weight:600;"><i class="fas fa-check-circle"></i> Met SLA</span>`;
+            return;
+        }
+        
+        const dueTime = new Date(dueStr).getTime();
+        const now = new Date().getTime();
+        const diff = dueTime - now;
+        
+        if (diff <= 0) {
+            const absDiff = Math.abs(diff);
+            const hours = Math.floor(absDiff / (1000 * 60 * 60));
+            const mins = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+            el.innerHTML = `<span class="badge out-of-stock" style="font-size:10px; font-weight:700;"><i class="fas fa-exclamation-triangle"></i> OVERDUE ${hours}h ${mins}m</span>`;
+        } else {
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            let badgeClass = 'status-created';
+            if (hours < 3) {
+                badgeClass = 'priority-critical';
+            } else if (hours < 12) {
+                badgeClass = 'priority-urgent';
+            } else if (hours < 24) {
+                badgeClass = 'priority-high';
+            }
+            
+            el.innerHTML = `<span class="badge ${badgeClass}" style="font-size:10px; font-weight:700; font-family:monospace;"><i class="fas fa-stopwatch"></i> ${hours}h ${mins}m ${secs}s</span>`;
+        }
+    });
+}
