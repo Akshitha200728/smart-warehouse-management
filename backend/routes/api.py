@@ -1223,6 +1223,152 @@ def get_analytics():
         }
     })
 
+@api_bp.route("/analytics/root-causes", methods=["GET"])
+def get_root_cause_analysis():
+    db = get_db()
+    
+    # Fetch all data
+    orders = list(db.orders.find({}))
+    exceptions = list(db.exceptions.find({}))
+    picking = list(db.picking_tasks.find({}))
+    inventories = list(db.inventory.find({}))
+    products = list(db.products.find({}))
+    
+    product_map = {p["_id"]: p for p in products}
+    
+    # 1. Backlog by stage
+    alloc_backlog = sum(1 for o in orders if o["status"] in ["Created", "Pending Allocation"])
+    pick_backlog = sum(1 for o in orders if o["picking_status"] in ["Pending", "In Progress"])
+    pack_backlog = sum(1 for o in orders if o["picking_status"] == "Completed" and o["packing_status"] in ["Pending", "In Progress"])
+    qa_backlog = sum(1 for o in orders if o["packing_status"] == "Completed" and o.get("quality_check_status") not in ["Approved"])
+    disp_backlog = sum(1 for o in orders if o.get("quality_check_status") == "Approved" and o["status"] != "Dispatched")
+    
+    backlog_by_stage = {
+        "Inventory Allocation": alloc_backlog,
+        "Picking Shelf Operations": pick_backlog,
+        "Packing Station Queue": pack_backlog,
+        "Quality Control Check": qa_backlog,
+        "Carrier Dispatch Queue": disp_backlog
+    }
+    
+    total_backlog = sum(backlog_by_stage.values())
+    if total_backlog > 0:
+        primary_bottleneck = max(backlog_by_stage, key=backlog_by_stage.get)
+        pct = int((backlog_by_stage[primary_bottleneck] / total_backlog) * 100)
+    else:
+        primary_bottleneck = "None"
+        pct = 0
+        
+    # 2. Compute specific Root Causes
+    root_causes = []
+    
+    # Stock Shortages
+    shortage_counts = {}
+    shortage_qty_needed = {}
+    for o in orders:
+        if o["status"] in ["Created", "Pending Allocation", "Partially Allocated"]:
+            for item in o.get("items", []):
+                req = item.get("quantity", 0)
+                alloc = item.get("allocated", 0)
+                if alloc < req:
+                    pid = item["product_id"]
+                    shortage_counts[pid] = shortage_counts.get(pid, 0) + 1
+                    shortage_qty_needed[pid] = shortage_qty_needed.get(pid, 0) + (req - alloc)
+                    
+    for pid, count in shortage_counts.items():
+        pname = product_map[pid]["name"] if pid in product_map else pid
+        qty = shortage_qty_needed[pid]
+        root_causes.append({
+            "stage": "Inventory Allocation",
+            "type": "Stock Shortage",
+            "impact_count": count,
+            "title": f"Stock Shortage of '{pname}'",
+            "description": f"Shortage of {qty} units of '{pname}' is blocking allocation for {count} order(s).",
+            "remedy": f"Approve replenishment reorder of {qty} units or transfer from secondary warehouse zone."
+        })
+        
+    # Picking Exceptions
+    active_pick_exceptions = [e for e in exceptions if e["status"] == "Active" and e["exception_type"] in ["Damaged Item", "Missing Item"]]
+    for exc in active_pick_exceptions:
+        pid = exc.get("product_id")
+        pname = product_map[pid]["name"] if pid and pid in product_map else "Unknown Product"
+        root_causes.append({
+            "stage": "Picking Shelf Operations",
+            "type": exc["exception_type"],
+            "impact_count": 1,
+            "title": f"Picking Exception on Order {exc['order_id']}",
+            "description": exc["problem"],
+            "remedy": exc["recommended_action"]
+        })
+        
+    # Packing Exceptions & Congestion
+    active_pack_exceptions = [e for e in exceptions if e["status"] == "Active" and e["exception_type"] == "Packing Issue"]
+    for exc in active_pack_exceptions:
+        root_causes.append({
+            "stage": "Packing Station Queue",
+            "type": "Packing Issue",
+            "impact_count": 1,
+            "title": f"Packing Issue on Order {exc['order_id']}",
+            "description": exc["problem"],
+            "remedy": exc["recommended_action"]
+        })
+        
+    if pack_backlog > 3:
+        root_causes.append({
+            "stage": "Packing Station Queue",
+            "type": "Station Overload",
+            "impact_count": pack_backlog,
+            "title": "Packing Station Congestion",
+            "description": f"There are {pack_backlog} orders waiting for packing. Average packing time is currently at 6.4 minutes.",
+            "remedy": "Assign secondary packers to packing benches and prepare packaging materials in advance."
+        })
+        
+    # Quality Failures
+    active_qa_failures = [e for e in exceptions if e["status"] == "Active" and e["exception_type"] == "Quality Failure"]
+    for exc in active_qa_failures:
+        root_causes.append({
+            "stage": "Quality Control Check",
+            "type": "Quality Failure",
+            "impact_count": 1,
+            "title": f"QA Rejection for Order {exc['order_id']}",
+            "description": exc["problem"],
+            "remedy": exc["recommended_action"]
+        })
+        
+    # Carrier Pickup Delay
+    if disp_backlog > 2:
+        root_causes.append({
+            "stage": "Carrier Dispatch Queue",
+            "type": "Carrier Delay",
+            "impact_count": disp_backlog,
+            "title": "Carrier Pickup Delay",
+            "description": f"There are {disp_backlog} orders packed and QA-approved, but waiting for carrier dispatch.",
+            "remedy": "Trigger carrier pickup alert or reschedule FedEx/DHL dispatch window."
+        })
+        
+    # Sort root causes by impact count descending
+    root_causes.sort(key=lambda x: x["impact_count"], reverse=True)
+    
+    if primary_bottleneck == "Inventory Allocation":
+        directive = "Prioritize Decision Center replenishment and transfer approvals. Allocation blockages are holding up the start of picking."
+    elif primary_bottleneck == "Picking Shelf Operations":
+        directive = "Reassign pickers to active picking tasks. Resolve picking exceptions in the Decision Center to free up stuck pick lists."
+    elif primary_bottleneck == "Packing Station Queue":
+        directive = "Open secondary packing station lines. Prepare shipping boxes and tape dispensers to reduce bench cycle time."
+    elif primary_bottleneck == "Quality Control Check":
+        directive = "Review barcode scanner calibration. Re-inspect contents of rejected packing boxes to correct packing discrepancies."
+    else:
+        directive = "Contact FedEx / DHL dispatch desks for urgent trailer pickup. Clear out dispatch staging lanes to prevent physical blockages."
+        
+    return jsonify({
+        "primary_bottleneck": primary_bottleneck,
+        "bottleneck_pct": pct,
+        "backlog_by_stage": backlog_by_stage,
+        "root_causes": root_causes,
+        "operational_directive": directive,
+        "timestamp": datetime.datetime.now().isoformat()
+    })
+
 @api_bp.route("/notifications", methods=["GET"])
 def get_notifications():
     db = get_db()

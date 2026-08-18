@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Cause Analysis & Bottlenecks - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .bottleneck-layout-grid {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 20px;
+        }
+        @media (max-width: 992px) {
+            .bottleneck-layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .directive-card {
+            background: var(--primary-glow);
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+        }
+        
+        .directive-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        
+        .directive-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 600;
+            line-height: 1.45;
+        }
+        
+        .kpi-row-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .progress-indicator {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <!-- Urgent Directive -->
+            <div class="glass-card directive-card">
+                <div class="directive-title"><i class="fas fa-bullhorn"></i> Live Operational Directive Recommendation</div>
+                <div class="directive-text" id="directive-recom-text">Scanning for warehouse queue bottlenecks...</div>
+            </div>
+            
+            <!-- KPIs -->
+            <div class="kpi-row-3">
+                <div class="glass-card kpi-card">
+                    <div class="kpi-details">
+                        <span class="kpi-label">Primary Bottleneck</span>
+                        <h3 class="kpi-value" id="kpi-bottleneck-stage" style="font-size: 18px; line-height: 1.2; margin-top: 6px;">Loading...</h3>
+                        <span class="kpi-trend" id="kpi-bottleneck-percentage">0% of total backlog delay</span>
+                    </div>
+                    <div class="kpi-icon-box danger">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+                
+                <div class="glass-card kpi-card">
+                    <div class="kpi-details">
+                        <span class="kpi-label">Total Backlogged Orders</span>
+                        <h3 class="kpi-value" id="kpi-backlogged-orders">0</h3>
+                        <span class="kpi-trend"><i class="fas fa-tasks"></i> Active queue across stages</span>
+                    </div>
+                    <div class="kpi-icon-box info">
+                        <i class="fas fa-stream"></i>
+                    </div>
+                </div>
+                
+                <div class="glass-card kpi-card">
+                    <div class="kpi-details">
+                        <span class="kpi-label">Root Cause Factors</span>
+                        <h3 class="kpi-value" id="kpi-factors-count">0</h3>
+                        <span class="kpi-trend"><i class="fas fa-search"></i> Specific problem drivers detected</span>
+                    </div>
+                    <div class="kpi-icon-box warning">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bottleneck-layout-grid">
+                <!-- Root causes Table -->
+                <div class="glass-card table-section">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:16px;">
+                        <h3>Dynamic Root Cause Breakdown</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="loadRootCauses()"><i class="fas fa-sync"></i> Refresh Data</button>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="wms-table" id="root-causes-table">
+                            <thead>
+                                <tr>
+                                    <th>Factor Title</th>
+                                    <th>Stage Location</th>
+                                    <th>Issue Type</th>
+                                    <th>Affected Orders</th>
+                                    <th>Description / Problem</th>
+                                    <th>Recommended Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Backlog chart -->
+                <div class="glass-card">
+                    <h3>Pipeline Stage Distribution</h3>
+                    <p style="font-size:12.5px; color:var(--text-secondary); margin:6px 0 16px 0;">Distribution of pending orders across key warehouse processing segments.</p>
+                    <div class="canvas-wrapper" style="height: 280px;">
+                        <canvas id="pipeline-distribution-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/bottlenecks.js"></script>
+</body>
+</html>

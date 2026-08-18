@@ -92,6 +92,7 @@ function getSidebarHTML(user) {
             <li class="menu-item" data-page="exceptions"><a href="exceptions.html"><i class="fas fa-exclamation-triangle"></i><span>Exception Center</span></a></li>
             <li class="menu-item" data-page="decision-center"><a href="decision-center.html"><i class="fas fa-brain"></i><span>Decision Center</span></a></li>
             <li class="menu-item" data-page="analytics"><a href="analytics.html"><i class="fas fa-chart-line"></i><span>Analytics</span></a></li>
+            <li class="menu-item" data-page="bottlenecks"><a href="bottlenecks.html"><i class="fas fa-search"></i><span>Root Cause Analysis</span></a></li>
             <li class="menu-item" data-page="forecast"><a href="forecast.html"><i class="fas fa-hourglass-half"></i><span>Stockout Forecast</span></a></li>
             <li class="menu-item" data-page="notifications"><a href="notifications.html"><i class="fas fa-bell"></i><span>Notifications</span></a></li>
             <li class="menu-item" data-page="settings"><a href="settings.html"><i class="fas fa-cog"></i><span>Settings</span></a></li>
