@@ -79,6 +79,9 @@ function renderTable(products) {
                     <button class="btn btn-secondary btn-sm" onclick="openAdjustModal('${p._id}', '${p.sku}', '${p.name.replace(/'/g, "\\'")}', ${inv.available_stock}, '${inv.location}', ${inv.reorder_level}, ${inv.safety_stock}, ${inv.lead_time}, ${inv.avg_daily_demand}, '${p.category}', '${p.description.replace(/'/g, "\\'")}')" title="Adjust Stock levels / Edit Config">
                         <i class="fas fa-sliders-h"></i> Adjust
                     </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p._id}', '${p.sku}')" style="padding: 4px 8px; font-size:11px;" title="Delete Product">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
                 </div>
             </td>
         `;
@@ -300,4 +303,20 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+async function deleteProduct(id, sku) {
+    if (!confirm(`Are you sure you want to delete the product ${sku} from the warehouse? This will remove all associated stock and inventory records.`)) {
+        return;
+    }
+    
+    try {
+        const res = await fetchAPI(`/products/${id}`, { method: 'DELETE' });
+        if (res.success) {
+            showToast(res.message, 'success');
+            loadProducts();
+        }
+    } catch (e) {
+        console.error('Error deleting product:', e);
+    }
 }

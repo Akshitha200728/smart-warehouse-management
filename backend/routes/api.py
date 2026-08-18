@@ -232,6 +232,24 @@ def adjust_stock(id):
     persist_all()
     return jsonify({"success": True})
 
+@api_bp.route("/products/<id>", methods=["DELETE"])
+def delete_product(id):
+    db = get_db()
+    
+    prod = db.products.find_one({"_id": id})
+    if not prod:
+        return jsonify({"success": False, "message": "Product not found"}), 404
+        
+    sku = prod.get("sku", "N/A")
+    
+    db.products.delete_one({"_id": id})
+    db.inventory.delete_one({"product_id": id})
+    
+    log_audit(db, "Manager", "Delete Product", None, id, f"SKU: {sku}", "Deleted from warehouse database")
+    persist_all()
+    
+    return jsonify({"success": True, "message": f"Product {id} ({sku}) deleted successfully."})
+
 @api_bp.route("/inventory/reorder-recommendations", methods=["GET"])
 def get_reorder_recommendations():
     recs = analyze_reorders()
