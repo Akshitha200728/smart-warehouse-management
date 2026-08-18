@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="css/orders.css">
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <!-- Controls panel -->
+            <div class="glass-card controls-row">
+                <div class="filter-controls">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="order-search" placeholder="Search Order ID or customer...">
+                    </div>
+                    
+                    <select id="status-filter" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="Created">Created</option>
+                        <option value="Partially Allocated">Partially Allocated</option>
+                        <option value="Fully Allocated">Fully Allocated</option>
+                        <option value="Picking">Picking</option>
+                        <option value="Packing">Packing</option>
+                        <option value="Quality Check">Quality Check</option>
+                        <option value="Ready for Dispatch">Ready for Dispatch</option>
+                        <option value="Dispatched">Dispatched</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openCreateOrderModal()">
+                        <i class="fas fa-plus"></i> Create Order
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Table Section -->
+            <div class="glass-card table-section">
+                <div class="table-wrapper">
+                    <table class="wms-table" id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Customer Type</th>
+                                <th>Order Date</th>
+                                <th>SLA Due Date</th>
+                                <th>Priority</th>
+                                <th>Score</th>
+                                <th>Allocation</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rendered dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- CREATE ORDER MODAL -->
+            <div class="modal-overlay" id="create-order-modal">
+                <div class="modal-content" style="width: 560px;">
+                    <div class="modal-header">
+                        <h3>Create Customer Order</h3>
+                        <button class="modal-close" onclick="closeModal('create-order-modal')">&times;</button>
+                    </div>
+                    <form id="create-order-form">
+                        <div class="form-group">
+                            <label for="order-customer">Customer / Client Name</label>
+                            <input type="text" id="order-customer" class="form-control" placeholder="e.g. General Hospital Corporation" required>
+                        </div>
+                        
+                        <div class="modal-grid-2">
+                            <div class="form-group">
+                                <label for="order-cust-type">Customer Tier</label>
+                                <select id="order-cust-type" required>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Premium">Premium</option>
+                                    <option value="VIP">VIP</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="order-urgency">Order Urgency SLA</label>
+                                <select id="order-urgency" required>
+                                    <option value="Low">Low (48 hours)</option>
+                                    <option value="Normal" selected>Normal (24 hours)</option>
+                                    <option value="High">High (12 hours)</option>
+                                    <option value="Urgent">Urgent (6 hours)</option>
+                                    <option value="Critical">Critical (Instant / 4 hours)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin: 16px 0 10px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; font-size: 13px; color: var(--primary);">Order Line Items</h4>
+                        
+                        <div class="items-selection-box">
+                            <div class="item-selection-row" id="item-selection-container">
+                                <!-- Line items added dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="addSelectionRow()" style="margin-top: 8px;">
+                                <i class="fas fa-plus"></i> Add Item Row
+                            </button>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('create-order-modal')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/orders.js"></script>
+</body>
+</html>

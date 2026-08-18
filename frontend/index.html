@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SmartFulfill Warehouse System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Theme CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-glow"></div>
+        <div class="glass-card login-card">
+            <div class="login-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <h2>SmartFulfill</h2>
+                <p>Warehouse Operations & Order Fulfillment</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope icon-spacing"></i> Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@smartfulfill.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock icon-spacing"></i> Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="remember-me">
+                        <span class="checkmark"></span>
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-pass-link" onclick="forgotPassword()">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            
+            <div class="login-divider">
+                <span>OR</span>
+            </div>
+            
+            <div class="demo-login-box">
+                <p class="demo-info-text">Hackathon Quick Access</p>
+                <div class="demo-buttons">
+                    <button class="btn btn-secondary btn-sm" onclick="loginDemo('admin')">
+                        <i class="fas fa-user-shield"></i> Manager Demo
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="loginDemo('picker')">
+                        <i class="fas fa-user-ninja"></i> Picker Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Helpers and Common functionality -->
+    <script src="js/common.js"></script>
+    <!-- Login Specific Logic -->
+    <script src="js/login.js"></script>
+</body>
+</html>

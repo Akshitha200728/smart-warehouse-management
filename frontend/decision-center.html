@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Center - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .decision-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 20px;
+        }
+        
+        .decision-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .decision-card.approved {
+            border-left-color: var(--success);
+            opacity: 0.8;
+        }
+        .decision-card.rejected {
+            border-left-color: var(--text-muted);
+            opacity: 0.6;
+        }
+        
+        .decision-block {
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        
+        .decision-block strong {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+        
+        .decision-details-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <p style="color:var(--text-secondary); font-size:13px;">Review automated solutions computed by the SmartFulfill decision engines.</p>
+                <span class="badge status-quality" id="pending-decisions-count">0 Decisions Pending</span>
+            </div>
+            
+            <div class="decision-grid" id="decisions-container">
+                <!-- Dynamically loaded decision cards -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/decisions.js"></script>
+</body>
+</html>

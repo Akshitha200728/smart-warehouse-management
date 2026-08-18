@@ -1,0 +1,208 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: #06090e;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+    z-index: 10;
+}
+
+.login-glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+    top: -50px;
+    left: -50px;
+    z-index: -1;
+    filter: blur(40px);
+    animation: glow-move 8s infinite alternate ease-in-out;
+}
+
+.login-card {
+    padding: 40px 32px;
+}
+
+.login-brand {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.login-brand .brand-icon {
+    margin: 0 auto 16px auto;
+    width: 54px;
+    height: 54px;
+    font-size: 24px;
+    border-radius: var(--radius-md);
+}
+
+.login-brand h2 {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.login-brand p {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.icon-spacing {
+    margin-right: 6px;
+}
+
+.btn-block {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.forgot-pass-link {
+    color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.forgot-pass-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 24px 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.login-divider::before, .login-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.login-divider:not(:empty)::before {
+    margin-right: 12px;
+}
+
+.login-divider:not(:empty)::after {
+    margin-left: 12px;
+}
+
+.demo-login-box {
+    text-align: center;
+}
+
+.demo-info-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+.demo-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.demo-buttons button {
+    flex: 1;
+    font-size: 11px;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+/* Custom Checkbox */
+.checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: 24px;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-secondary);
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    height: 16px;
+    width: 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    transition: var(--transition);
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-hover);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+@keyframes glow-move {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 40px) scale(1.2); }
+}

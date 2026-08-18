@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SmartFulfill Warehouse System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <!-- KPI Cards Grid -->
+            <div class="kpi-grid">
+                <div class="glass-card kpi-card">
+                    <div class="kpi-details">
+                        <span class="kpi-label">Fulfillment Rate</span>
+                        <h3 class="kpi-value" id="kpi-fulfillment-rate">0.0%</h3>
+                        <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> +1.2% this week</span>
+                    </div>
+                    <div class="kpi-icon-box success">
+                        <i class="fas fa-truck-loading"></i>
+                    </div>
+                </div>
+                
+                <div class="glass-card kpi-card">
+                    <div class="kpi-details">
+                        <span class="kpi-label">Total Orders</span>
+                        <h3 class="kpi-value" id="kpi-total-orders">0</h3>
+                        <span class="kpi-trend" id="kpi-pending-orders-label">0 pending</span>
+                    </div>
+                    <div class="kpi-icon-box info">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                </div>
+                
+                <div class="glass-card kpi-card">
+                    <div class="kpi-details">
+                        <span class="kpi-label">Orders At Risk</span>
+                        <h3 class="kpi-value" id="kpi-at-risk-orders" style="color: var(--danger);">0</h3>
+                        <span class="kpi-trend down"><i class="fas fa-exclamation-triangle"></i> SLA Target critical</span>
+                    </div>
+                    <div class="kpi-icon-box danger">
+                        <i class="fas fa-business-time"></i>
+                    </div>
+                </div>
+                
+                <div class="glass-card kpi-card">
+                    <div class="kpi-details">
+                        <span class="kpi-label">Stock Warnings</span>
+                        <h3 class="kpi-value" id="kpi-stock-warnings">0</h3>
+                        <span class="kpi-trend" id="kpi-outofstock-label">0 out-of-stock</span>
+                    </div>
+                    <div class="kpi-icon-box warning">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Double Column Layout for Dashboard Analytics -->
+            <div class="dashboard-grid-2">
+                <!-- Left Column: Queue & Decisions -->
+                <div class="dashboard-left-col">
+                    <!-- Priority Queue -->
+                    <div class="glass-card table-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-bolt icon-spacing" style="color: var(--primary);"></i> Priority Queue</h3>
+                            <a href="orders.html" class="btn btn-secondary btn-sm">View All Orders</a>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="wms-table" id="priority-queue-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Urgency</th>
+                                        <th>Score</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Smart Recommendations -->
+                    <div class="glass-card recom-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-lightbulb icon-spacing" style="color: var(--warning);"></i> Smart Decision & Replenishment Recommendations</h3>
+                        </div>
+                        <div class="recom-list" id="recommendation-list">
+                            <!-- Rendered dynamically -->
+                            <div class="empty-state">
+                                <i class="fas fa-check-double text-muted" style="font-size: 24px; margin-bottom: 8px;"></i>
+                                <p>No immediate stock replenishment recommendations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Charts & Bottlenecks -->
+                <div class="dashboard-right-col">
+                    <!-- Bottleneck Detection Panel -->
+                    <div class="glass-card alert-card bottleneck-box" id="bottleneck-panel">
+                        <div class="alert-header">
+                            <i class="fas fa-hourglass-half alert-icon"></i>
+                            <div>
+                                <h4 class="alert-title">Bottleneck Analysis</h4>
+                                <p class="alert-desc" id="bottleneck-desc">Calculating current warehouse bottlenecks...</p>
+                            </div>
+                        </div>
+                        <div class="bottleneck-metric" id="bottleneck-meter">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <span class="bottleneck-pct">0% delay contribution</span>
+                        </div>
+                        <div class="bottleneck-suggestion" id="bottleneck-suggestion">
+                            Recommendation: Staffing is currently optimal.
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-card-grid">
+                        <div class="glass-card chart-container">
+                            <h4>Order Stage Tracking</h4>
+                            <div class="canvas-wrapper">
+                                <canvas id="order-stages-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card chart-container">
+                            <h4>Inventory Health</h4>
+                            <div class="canvas-wrapper">
+                                <canvas id="inventory-health-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

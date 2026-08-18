@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picking Corridors & Serpentine Routing - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .picking-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 992px) {
+            .picking-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .route-canvas-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .route-canvas-wrapper {
+            background: #070A10;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        #route-canvas {
+            max-width: 100%;
+            background: #04060b;
+        }
+        
+        .pick-checklist-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pick-checklist-item-input {
+            width: 80px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <div class="picking-grid">
+                <!-- Left Column: Active Tasks List -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="glass-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3>Active Picking Corridor Tasks</h3>
+                            <span class="badge status-picking" id="active-tasks-count">0 Active</span>
+                        </div>
+                        
+                        <div id="picking-tasks-list">
+                            <!-- Tasks loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Canvas Map & Optimization Stats -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Routing Optimizer Visualizer -->
+                    <div class="glass-card route-canvas-card">
+                        <h3 style="align-self: flex-start; margin-bottom: 12px;">S-Shape Corridor Routing Visualizer</h3>
+                        
+                        <div class="route-canvas-wrapper">
+                            <canvas id="route-canvas" width="360" height="240"></canvas>
+                        </div>
+                        
+                        <div style="align-self: flex-start; margin-top: 14px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                                <span>Optimized Route Distance:</span>
+                                <strong id="route-distance-text" style="color: var(--primary);">0m</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                                <span>Estimated Completion Walk + Pick:</span>
+                                <strong id="route-time-text" style="color: var(--primary);">0 mins</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary);">
+                                <span>Route Path:</span>
+                                <strong id="route-path-sequence" style="font-family: monospace; color: var(--success); font-size: 12px;">Staging Area</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- COMPLETE PICKING TASK CHECKLIST MODAL -->
+            <div class="modal-overlay" id="complete-pick-modal">
+                <div class="modal-content" style="width: 580px;">
+                    <div class="modal-header">
+                        <h3>Fulfillment Pick Checklist</h3>
+                        <button class="modal-close" onclick="closeModal('complete-pick-modal')">&times;</button>
+                    </div>
+                    
+                    <input type="hidden" id="checklist-task-id">
+                    <input type="hidden" id="checklist-order-id">
+                    
+                    <div id="checklist-items-container" style="margin-bottom: 16px;">
+                        <!-- Items populated dynamically -->
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('complete-pick-modal')">Cancel</button>
+                        <button type="button" class="btn btn-danger" onclick="openPickerExceptionModal()">
+                            <i class="fas fa-exclamation-triangle"></i> Report Shortage/Damage
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="submitPickChecklist()">
+                            <i class="fas fa-check-double"></i> Confirm Completed Pick
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PICKER EXCEPTION MODAL -->
+            <div class="modal-overlay" id="picker-exception-modal" style="z-index: 1050;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Report Bin Audit Issue</h3>
+                        <button class="modal-close" onclick="closeModal('picker-exception-modal')">&times;</button>
+                    </div>
+                    <form id="picker-exception-form">
+                        <div class="form-group">
+                            <label for="exc-product-select">Product Item</label>
+                            <select id="exc-product-select" class="form-control" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="exc-type-select">Issue Type</label>
+                            <select id="exc-type-select" class="form-control" required onchange="toggleExcInputs()">
+                                <option value="Damaged Item">Damaged Item (Unavailable for pick)</option>
+                                <option value="Missing Item">Missing Item (Shrinkage quantity mismatch)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Input for Damaged -->
+                        <div class="form-group" id="exc-qty-container">
+                            <label for="exc-damage-qty">Damaged Units Quantity</label>
+                            <input type="number" id="exc-damage-qty" class="form-control" min="1" value="1">
+                        </div>
+                        
+                        <!-- Input for Missing (Expected vs Found) -->
+                        <div id="exc-mismatch-container" style="display: none;" class="modal-grid-2">
+                            <div class="form-group">
+                                <label for="exc-expected-qty">Expected Qty</label>
+                                <input type="number" id="exc-expected-qty" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="exc-found-qty">Actual Found Qty</label>
+                                <input type="number" id="exc-found-qty" class="form-control" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('picker-exception-modal')">Back</button>
+                            <button type="submit" class="btn btn-danger">Submit Exception Report</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/picking.js"></script>
+</body>
+</html>

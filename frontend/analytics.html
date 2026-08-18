@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Analytics - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 20px;
+        }
+        .analytics-full-row {
+            grid-column: 1 / -1;
+        }
+        .chart-card {
+            height: 280px;
+        }
+        .stats-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        .stat-box h4 {
+            font-size: 24px;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+        .stat-box span {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <!-- Stats overview row -->
+            <div class="glass-card analytics-full-row">
+                <h3>Warehouse Operations Efficiency Statistics</h3>
+                <div class="stats-summary-grid">
+                    <div class="stat-box">
+                        <span>Average Picking Time</span>
+                        <h4 id="stat-avg-pick">0.0 mins</h4>
+                    </div>
+                    <div class="stat-box">
+                        <span>Average Packing Time</span>
+                        <h4 id="stat-avg-pack">0.0 mins</h4>
+                    </div>
+                    <div class="stat-box">
+                        <span>Average Fulfillment Cycle</span>
+                        <h4 id="stat-avg-cycle">0.0 mins</h4>
+                    </div>
+                    <div class="stat-box">
+                        <span>Average Orders Per Hour</span>
+                        <h4 id="stat-orders-hr">0</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Double column charts -->
+            <div class="analytics-grid">
+                <!-- Fulfillment Rate Performance -->
+                <div class="glass-card chart-card">
+                    <h4 style="margin-bottom: 12px; font-size:14px; color:var(--text-secondary); text-transform:uppercase;">Fulfillment Volume Outcomes</h4>
+                    <div class="canvas-wrapper" style="height:220px;">
+                        <canvas id="fulfillment-volume-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Pipeline Delay Contribution -->
+                <div class="glass-card chart-card">
+                    <h4 style="margin-bottom: 12px; font-size:14px; color:var(--text-secondary); text-transform:uppercase;">Corridor Stages Delay Contribution (%)</h4>
+                    <div class="canvas-wrapper" style="height:220px;">
+                        <canvas id="delay-contribution-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Stock category turnover -->
+                <div class="glass-card chart-card">
+                    <h4 style="margin-bottom: 12px; font-size:14px; color:var(--text-secondary); text-transform:uppercase;">Stock Health Split</h4>
+                    <div class="canvas-wrapper" style="height:220px;">
+                        <canvas id="stock-health-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Bottlenecks Advice -->
+                <div class="glass-card chart-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                    <h4 style="font-size:14px; color:var(--text-secondary); text-transform:uppercase;">Bottleneck & Optimization Diagnostics</h4>
+                    
+                    <div style="background:var(--primary-glow); border-left:4px solid var(--primary); padding:16px; border-radius:var(--radius-sm); margin:12px 0;">
+                        <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:4px;">Identified Delay Area</div>
+                        <h4 id="analytics-bottleneck-title" style="color:var(--text-primary); margin-bottom:8px;">Picking Area</h4>
+                        <p id="analytics-bottleneck-recom" style="font-size:12.5px; color:var(--text-secondary); line-height:1.4;">Redistribute picker assignments along corridor shelves.</p>
+                    </div>
+                    
+                    <div style="font-size:11.5px; color:var(--text-muted); line-height:1.45;">
+                        <i class="fas fa-info-circle"></i> Statistics are calculated by correlating completed pick cycles, packing tasks weights, quality check approvals, and shipping logs.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/analytics.js"></script>
+</body>
+</html>

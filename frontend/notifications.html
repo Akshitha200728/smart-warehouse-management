@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Logs & Notifications - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+        
+        .notification-item:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+        }
+        
+        .notification-item.unread {
+            border-left: 4px solid var(--primary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .notification-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .notification-icon-box.critical { background: var(--danger-glow); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+        .notification-icon-box.warning { background: var(--warning-glow); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+        .notification-icon-box.alert { background: var(--info-glow); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+        .notification-icon-box.success { background: var(--success-glow); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+        
+        .notification-body {
+            flex: 1;
+            font-size: 13.5px;
+        }
+        
+        .notification-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        
+        .notification-desc {
+            color: var(--text-secondary);
+        }
+        
+        .notification-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <div class="glass-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                    <h3>Recent System Events & Warnings</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i> Mark All as Read
+                    </button>
+                </div>
+                
+                <div class="notifications-list" id="notif-list-container">
+                    <!-- Notifications items loaded dynamically -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotificationPage();
+            
+            // Poll updates
+            setInterval(loadNotificationPage, 10000);
+        });
+        
+        async function loadNotificationPage() {
+            try {
+                const notifs = await fetchAPI('/notifications', { method: 'GET' });
+                renderNotificationList(notifs);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        
+        function renderNotificationList(notifs) {
+            const container = document.getElementById('notif-list-container');
+            container.innerHTML = '';
+            
+            if (notifs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash" style="font-size: 36px; color: var(--text-muted); margin-bottom: 8px;"></i>
+                        <p>No recent system notifications.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            notifs.forEach(notif => {
+                const item = document.createElement('div');
+                item.className = `notification-item ${notif.read ? '' : 'unread'}`;
+                
+                let iconClass = 'fa-info-circle';
+                if (notif.type === 'critical') iconClass = 'fa-skull-crossbones';
+                if (notif.type === 'warning') iconClass = 'fa-exclamation-triangle';
+                if (notif.type === 'success') iconClass = 'fa-check-circle';
+                
+                item.innerHTML = `
+                    <div class="notification-icon-box ${notif.type}">
+                        <i class="fas ${iconClass}"></i>
+                    </div>
+                    <div class="notification-body">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-desc">${notif.message}</div>
+                        <div class="notification-time">${formatDate(notif.timestamp)}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        async function markAllAsRead() {
+            try {
+                const res = await fetchAPI('/notifications/read', { method: 'POST' });
+                if (res.success) {
+                    showToast('All notifications marked as read.', 'success');
+                    loadNotificationPage();
+                    updateNotificationBadge(); // update common navbar badge count
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

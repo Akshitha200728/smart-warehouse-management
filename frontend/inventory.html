@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="css/inventory.css">
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <!-- Header Operations controls -->
+            <div class="glass-card controls-row">
+                <div class="filter-controls">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inventory-search" placeholder="Search SKU, name, or ID...">
+                    </div>
+                    
+                    <select id="category-filter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="Medical">Medical</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Office">Office</option>
+                        <option value="Household">Household</option>
+                    </select>
+                    
+                    <select id="status-filter" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="Healthy">Healthy</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openAddProductModal()">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                    <button class="btn btn-secondary" onclick="openReorderRecommendations()">
+                        <i class="fas fa-calculator"></i> Reorder Engine
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Table Section -->
+            <div class="glass-card table-section">
+                <div class="table-wrapper">
+                    <table class="wms-table" id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Total Stock</th>
+                                <th>Available</th>
+                                <th>Reserved</th>
+                                <th>Damaged</th>
+                                <th>Reorder Lvl</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rendered dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- ADD PRODUCT MODAL -->
+            <div class="modal-overlay" id="add-product-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Warehouse Product</h3>
+                        <button class="modal-close" onclick="closeModal('add-product-modal')">&times;</button>
+                    </div>
+                    <form id="add-product-form">
+                        <div class="modal-grid-2">
+                            <div class="form-group">
+                                <label for="prod-sku">SKU Code</label>
+                                <input type="text" id="prod-sku" class="form-control" placeholder="e.g. MED-KIT-100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-name">Product Name</label>
+                                <input type="text" id="prod-name" class="form-control" placeholder="e.g. Premium First Aid Kit" required>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-grid-2">
+                            <div class="form-group">
+                                <label for="prod-category">Category</label>
+                                <select id="prod-category" required>
+                                    <option value="Medical">Medical</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Office">Office</option>
+                                    <option value="Household">Household</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-location">Warehouse Bin Location</label>
+                                <input type="text" id="prod-location" class="form-control" placeholder="e.g. A-01-05" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="prod-desc">Product Description</label>
+                            <textarea id="prod-desc" rows="2" placeholder="Item catalog specifications..."></textarea>
+                        </div>
+                        
+                        <h4 style="margin: 16px 0 10px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; font-size: 13px; color: var(--primary);">Inventory Configuration</h4>
+                        
+                        <div class="modal-grid-3">
+                            <div class="form-group">
+                                <label for="prod-qty">Starting Stock</label>
+                                <input type="number" id="prod-qty" class="form-control" min="0" value="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-reorder">Reorder Limit</label>
+                                <input type="number" id="prod-reorder" class="form-control" min="0" value="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-safety">Safety Stock</label>
+                                <input type="number" id="prod-safety" class="form-control" min="0" value="5" required>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-grid-2">
+                            <div class="form-group">
+                                <label for="prod-demand">Avg Daily Demand</label>
+                                <input type="number" id="prod-demand" class="form-control" min="0" step="0.1" value="2.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-lead">Supplier Lead Time (Days)</label>
+                                <input type="number" id="prod-lead" class="form-control" min="0" value="5" required>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('add-product-modal')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Item</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ADJUST STOCK MODAL -->
+            <div class="modal-overlay" id="adjust-stock-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Stock Adjustment & Configuration</h3>
+                        <button class="modal-close" onclick="closeModal('adjust-stock-modal')">&times;</button>
+                    </div>
+                    <div class="adjust-header-details">
+                        <span id="adjust-item-sku" style="font-weight: 700; color: var(--primary);">SKU</span>
+                        <h4 id="adjust-item-name">Product Name</h4>
+                        <p id="adjust-item-stock" style="font-size: 13px; color: var(--text-secondary);">Current Stock: 0</p>
+                    </div>
+                    
+                    <div class="adjust-type-toggle">
+                        <button id="toggle-adj" class="toggle-btn active" onclick="setAdjustMode('adjustment')">Quantities Adjustment</button>
+                        <button id="toggle-edit" class="toggle-btn" onclick="setAdjustMode('edit')">Edit Parameters</button>
+                    </div>
+                    
+                    <!-- Form Action: Adjust Stock -->
+                    <form id="adjust-stock-form">
+                        <input type="hidden" id="adjust-prod-id">
+                        
+                        <div id="section-adjustment">
+                            <div class="form-group">
+                                <label for="stock-change">Adjust Count (Use negative for removal)</label>
+                                <input type="number" id="stock-change" class="form-control" placeholder="e.g. +50 or -12">
+                            </div>
+                            <div class="form-group">
+                                <label for="adjust-reason">Adjustment Reason</label>
+                                <input type="text" id="adjust-reason" class="form-control" placeholder="e.g. Cycle count verify, damage report...">
+                            </div>
+                        </div>
+                        
+                        <div id="section-edit" style="display: none;">
+                            <div class="modal-grid-2">
+                                <div class="form-group">
+                                    <label for="edit-location">Location</label>
+                                    <input type="text" id="edit-location" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-reorder">Reorder Level</label>
+                                    <input type="number" id="edit-reorder" class="form-control" min="0">
+                                </div>
+                            </div>
+                            <div class="modal-grid-2">
+                                <div class="form-group">
+                                    <label for="edit-safety">Safety Stock</label>
+                                    <input type="number" id="edit-safety" class="form-control" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-lead">Lead Time (Days)</label>
+                                    <input type="number" id="edit-lead" class="form-control" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-demand">Avg Daily Demand</label>
+                                <input type="number" id="edit-demand" class="form-control" min="0" step="0.1">
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('adjust-stock-modal')">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- REORDER RECOMMENDATIONS OVERLAY -->
+            <div class="modal-overlay" id="reorder-recs-modal">
+                <div class="modal-content" style="width: 700px; max-width: 95%;">
+                    <div class="modal-header">
+                        <h3>Reorder Calculations Engine Output</h3>
+                        <button class="modal-close" onclick="closeModal('reorder-recs-modal')">&times;</button>
+                    </div>
+                    <div class="reorder-recs-list" id="modal-reorder-list">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal('reorder-recs-modal')">Close</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/inventory.js"></script>
+</body>
+</html>

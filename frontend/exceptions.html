@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exception Center - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <!-- Control Row -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <p style="color:var(--text-secondary); font-size:13px;">Real-time monitoring of warehouse operational failures and shortages.</p>
+                <span class="badge status-exception" id="active-exceptions-count">0 Active Alerts</span>
+            </div>
+
+            <!-- Exception Table -->
+            <div class="glass-card table-section">
+                <div class="table-wrapper">
+                    <table class="wms-table" id="exceptions-table">
+                        <thead>
+                            <tr>
+                                <th>Exception ID</th>
+                                <th>Severity</th>
+                                <th>Issue Type</th>
+                                <th>Order Ref</th>
+                                <th>Problem Details</th>
+                                <th>Operational Impact</th>
+                                <th>Timestamp</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rendered dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/exceptions.js"></script>
+</body>
+</html>

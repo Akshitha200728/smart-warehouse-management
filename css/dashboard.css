@@ -1,0 +1,201 @@
+.dashboard-grid-2 {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 1200px) {
+    .dashboard-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dashboard-left-col, .dashboard-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+/* Smart Recommendation Cards */
+.recom-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recom-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--warning);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.recom-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-hover);
+}
+
+.recom-card.critical { border-left-color: var(--danger); }
+.recom-card.high { border-left-color: var(--primary); }
+.recom-card.medium { border-left-color: var(--warning); }
+.recom-card.low { border-left-color: var(--info); }
+
+.recom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.recom-title {
+    color: var(--text-primary);
+}
+
+.recom-urgency {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.recom-urgency.critical { background: var(--danger-glow); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+.recom-urgency.high { background: var(--primary-glow); color: var(--primary); border: 1px solid rgba(249, 115, 22, 0.2); }
+.recom-urgency.medium { background: var(--warning-glow); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+.recom-urgency.low { background: var(--info-glow); color: var(--info); border: 1px solid rgba(59, 130, 246, 0.2); }
+
+.recom-body {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.recom-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.recom-math {
+    font-family: monospace;
+    color: var(--text-muted);
+}
+
+/* Bottleneck Alert Box */
+.bottleneck-box {
+    background: rgba(239, 68, 68, 0.03);
+    border-color: rgba(239, 68, 68, 0.2);
+    border-left: 4px solid var(--danger);
+    padding: 20px;
+}
+
+.alert-header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.alert-icon {
+    font-size: 24px;
+    color: var(--danger);
+    margin-top: 2px;
+}
+
+.alert-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.alert-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.bottleneck-metric {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.bottleneck-metric .progress-bar-container {
+    flex: 1;
+    background: rgba(239, 68, 68, 0.1);
+    height: 10px;
+}
+
+.bottleneck-metric .progress-bar-fill {
+    background: var(--danger);
+}
+
+.bottleneck-pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--danger);
+    white-space: nowrap;
+}
+
+.bottleneck-suggestion {
+    font-size: 12px;
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Chart Canvas wrapping */
+.charts-card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) and (max-width: 1200px) {
+    .charts-card-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.chart-container h4 {
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.canvas-wrapper {
+    position: relative;
+    height: 180px;
+    width: 100%;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}

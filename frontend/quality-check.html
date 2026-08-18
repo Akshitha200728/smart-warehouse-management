@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Assurance - SmartFulfill System</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .qa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .qa-task-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .qa-checklist-group {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            margin: 14px 0;
+        }
+        
+        .qa-check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .qa-check-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .qa-check-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+        
+        .qa-check-item.checked {
+            color: var(--text-primary);
+        }
+        
+        .qa-items-summary {
+            font-size: 13px;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <main>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <p style="color:var(--text-secondary); font-size:13px;">Confirm items, quantity matching, damage inspection, and barcoding labels.</p>
+                <span class="badge status-quality" id="qa-active-count">0 Shipments</span>
+            </div>
+            
+            <div class="qa-grid" id="qa-tasks-container">
+                <!-- Dynamically loaded QA checklists -->
+            </div>
+            
+            <!-- REJECT QA MODAL -->
+            <div class="modal-overlay" id="reject-qa-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Reject Order QA Check</h3>
+                        <button class="modal-close" onclick="closeModal('reject-qa-modal')">&times;</button>
+                    </div>
+                    <form id="reject-qa-form">
+                        <input type="hidden" id="reject-qa-order-id">
+                        
+                        <div class="form-group">
+                            <label for="reject-reason">Quality Inspection Defect Details</label>
+                            <select id="reject-reason-type" class="form-control" required>
+                                <option value="Damaged Units Detected">Product item shows physical damage/fractures</option>
+                                <option value="Wrong Item SKU Bundled">Wrong inventory item/SKU found in container</option>
+                                <option value="Quantity Deficiency">Item count does not match order request</option>
+                                <option value="Illegible Barcode Label">Shipping address label or barcode is smeared/unscannable</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reject-comments">Verification Notes</label>
+                            <textarea id="reject-comments" class="form-control" rows="3" placeholder="Input details..." required></textarea>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('reject-qa-modal')">Cancel</button>
+                            <button type="submit" class="btn btn-danger">File Rejection Exception</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Helpers and Common JS -->
+    <script src="js/common.js"></script>
+    <!-- Page Specific JS -->
+    <script src="js/quality-check.js"></script>
+</body>
+</html>
