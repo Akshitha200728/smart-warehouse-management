@@ -233,28 +233,77 @@ def check_order_allocation_completion(db, order_id):
     )
 
 def recommend_replenishment(db, order, product_id, needed, allocated, strategy, product_name):
-    """Creates Exception and Decision Center entries for shortages."""
+    """Creates Exception and Decision Center entries for shortages, with multi-warehouse transfer support."""
     short_qty = needed - allocated
     order_id = order["_id"]
     priority_score = order.get("priority_score", 50)
     
+    # Check if other warehouses have sufficient stock
+    # Simulated other warehouses' stock:
+    # Warehouse B (North Hub) has 15 units of MED01, 8 of ELE02, 12 of HOU05
+    # Warehouse C (East Logistics) has 20 of ELE01, 30 of OFF01
+    other_warehouse_stock = 0
+    source_warehouse = ""
+    
+    if "MED01" in product_id:
+        other_warehouse_stock = 15
+        source_warehouse = "Warehouse B (North Hub)"
+    elif "ELE02" in product_id:
+        other_warehouse_stock = 8
+        source_warehouse = "Warehouse B (North Hub)"
+    elif "HOU05" in product_id:
+        other_warehouse_stock = 12
+        source_warehouse = "Warehouse B (North Hub)"
+    elif "ELE01" in product_id:
+        other_warehouse_stock = 20
+        source_warehouse = "Warehouse C (East Logistics)"
+    elif "OFF01" in product_id:
+        other_warehouse_stock = 30
+        source_warehouse = "Warehouse C (East Logistics)"
+    else:
+        # Generic fallback
+        other_warehouse_stock = 10
+        source_warehouse = "Warehouse B (North Hub)"
+        
+    has_transfer_option = other_warehouse_stock >= short_qty
+    
     # 1. Create Stock Shortage Exception
     exc_id = f"EXC-SHR-{datetime.datetime.now().strftime('%y%m%d%H%M%S')}-{order_id[-4:]}"
+    
+    problem_desc = f"Stock Shortage: Order {order_id} requires {needed} units of '{product_name}' but only {allocated} units could be allocated locally."
+    if has_transfer_option:
+        problem_desc += f" Stock transfer option detected: {source_warehouse} has {other_warehouse_stock} units available."
+        recom_action = f"Approve stock transfer of {short_qty} units from {source_warehouse} to resolve the local shortage."
+    else:
+        recom_action = f"Request purchase procurement of {short_qty} units from the supplier (lead time: 5 days)."
+        
     db.exceptions.insert_one({
         "_id": exc_id,
         "exception_type": "Stock Shortage",
         "severity": "Critical" if priority_score >= 80 else "High" if priority_score >= 60 else "Medium",
         "order_id": order_id,
         "product_id": product_id,
-        "problem": f"Stock Shortage: Order {order_id} requires {needed} units of '{product_name}' but only {allocated} could be allocated.",
+        "problem": problem_desc,
         "impact": f"High priority order {order_id} (Score: {priority_score}) is stuck at {allocated}/{needed} units allocated.",
-        "recommended_action": f"Allocate available {allocated} units. Replenish remaining {short_qty} units immediately.",
+        "recommended_action": recom_action,
         "status": "Active",
         "timestamp": datetime.datetime.now().isoformat()
     })
     
     # 2. Create Decision in Decision Center
     dec_id = f"DEC-SHR-{datetime.datetime.now().strftime('%y%m%d%H%M%S')}-{order_id[-4:]}"
+    
+    if has_transfer_option:
+        decision_txt = f"Initiate Multi-Warehouse Stock Transfer of {short_qty} units from {source_warehouse}."
+        reason_txt = f"{source_warehouse} has a healthy stock of {other_warehouse_stock} units. Transferring stock takes 24 hours and is faster than a 5-day supplier reorder."
+        impact_txt = f"Resolves shortage of {short_qty} units. Allows order {order_id} to be fully allocated and picked tomorrow."
+        recommended_txt = f"Approve immediate stock transfer of {short_qty} units from {source_warehouse}."
+    else:
+        decision_txt = f"Allocate {allocated} units and procure remaining {short_qty} units from supplier."
+        reason_txt = f"No other warehouses have sufficient stock. Available stock at {source_warehouse} is only {other_warehouse_stock} units."
+        impact_txt = f"Fulfillment delayed by 5 days supplier lead time."
+        recommended_txt = f"Approve purchase order of {short_qty} units from supplier."
+        
     db.decisions.insert_one({
         "_id": dec_id,
         "problem": f"Stock Shortage of '{product_name}' for Order {order_id}.",
@@ -265,12 +314,14 @@ def recommend_replenishment(db, order, product_id, needed, allocated, strategy, 
             "allocated": allocated,
             "shortage": short_qty,
             "priority_score": priority_score,
-            "strategy": strategy
+            "strategy": strategy,
+            "transfer_source": source_warehouse if has_transfer_option else None,
+            "transfer_available": other_warehouse_stock if has_transfer_option else None
         },
-        "decision": f"Allocate {allocated} units to {order_id} and wait for replenishment of {short_qty} units.",
-        "reason": f"{order_id} has a high priority score of {priority_score} compared to other competing orders. Strategy used: {strategy}.",
-        "impact": f"Partially fulfills {order_id} immediately. Order remains on hold for dispatch until the replenishment of {short_qty} units is received.",
-        "recommended_action": f"Approve immediate replenishment reorder of {short_qty} units for '{product_name}'.",
+        "decision": decision_txt,
+        "reason": reason_txt,
+        "impact": impact_txt,
+        "recommended_action": recommended_txt,
         "status": "Pending",
         "timestamp": datetime.datetime.now().isoformat()
     })
