@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('inventory-search').value = searchQuery;
     }
     
+    // Auto-open Add Product modal if action=add is set
+    const action = urlParams.get('action');
+    if (action === 'add') {
+        setTimeout(openAddProductModal, 150);
+    }
+    
     // Initial fetch of products
     loadProducts();
     

@@ -237,6 +237,70 @@ def get_reorder_recommendations():
     recs = analyze_reorders()
     return jsonify(recs)
 
+@api_bp.route("/inventory/forecast", methods=["GET"])
+def get_inventory_forecast():
+    db = get_db()
+    products_list = list(db.products.find({}))
+    
+    forecasts = []
+    for prod in products_list:
+        pid = prod["_id"]
+        inv = db.inventory.find_one({"product_id": pid})
+        if not inv:
+            continue
+            
+        avail = inv.get("available_stock", 0)
+        avg_demand = inv.get("avg_daily_demand", 0.0)
+        lead_time = inv.get("lead_time", 0)
+        safety = inv.get("safety_stock", 0)
+        
+        # Calculate days to stockout
+        if avg_demand > 0:
+            days_to_stockout = avail / avg_demand
+        else:
+            days_to_stockout = 999.0
+            
+        if avail == 0:
+            risk = "Stocked Out"
+            urgency = "Critical"
+            recom = "Product is out of stock! Procure immediately."
+        elif days_to_stockout < lead_time:
+            risk = "Critical Risk"
+            urgency = "Critical"
+            recom = f"Stockout predicted in {days_to_stockout:.1f} days. Lead time is {lead_time} days. Runout occurs before replenishment can arrive."
+        elif days_to_stockout <= (lead_time + 3):
+            risk = "High Risk"
+            urgency = "High"
+            recom = f"Stockout predicted in {days_to_stockout:.1f} days. Lead time is {lead_time} days. Reorder immediately to avoid stockout."
+        elif days_to_stockout <= (lead_time + 7):
+            risk = "Medium Risk"
+            urgency = "Medium"
+            recom = f"Stockout predicted in {days_to_stockout:.1f} days. Lead time is {lead_time} days. Schedule reorder soon."
+        else:
+            risk = "Low Risk"
+            urgency = "Low"
+            recom = f"Stock healthy. Runout predicted in {days_to_stockout:.1f} days."
+            
+        forecasts.append({
+            "product_id": pid,
+            "sku": prod.get("sku"),
+            "name": prod.get("name"),
+            "category": prod.get("category"),
+            "available_stock": avail,
+            "avg_daily_demand": avg_demand,
+            "lead_time": lead_time,
+            "safety_stock": safety,
+            "days_to_stockout": round(days_to_stockout, 1) if days_to_stockout != 999.0 else 999.0,
+            "risk_level": risk,
+            "urgency": urgency,
+            "recommendation": recom,
+            "location": inv.get("location")
+        })
+        
+    # Sort by days_to_stockout (most urgent first)
+    forecasts.sort(key=lambda x: x["days_to_stockout"])
+    return jsonify(forecasts)
+
 
 # --- ORDERS & ALLOCATION ---
 @api_bp.route("/orders", methods=["GET"])

@@ -82,6 +82,7 @@ function getSidebarHTML(user) {
         <ul class="sidebar-menu">
             <li class="menu-item" data-page="dashboard"><a href="dashboard.html"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
             <li class="menu-item" data-page="inventory"><a href="inventory.html"><i class="fas fa-boxes"></i><span>Inventory</span></a></li>
+            <li class="menu-item" data-page="add-stock"><a href="inventory.html?action=add"><i class="fas fa-plus-circle"></i><span>Add Stock</span></a></li>
             <li class="menu-item" data-page="orders"><a href="orders.html"><i class="fas fa-shopping-cart"></i><span>Orders</span></a></li>
             <li class="menu-item" data-page="allocation"><a href="allocation.html"><i class="fas fa-share-alt"></i><span>Smart Allocation</span></a></li>
             <li class="menu-item" data-page="picking"><a href="picking.html"><i class="fas fa-dolly-flatbed"></i><span>Picking Route</span></a></li>
@@ -91,6 +92,7 @@ function getSidebarHTML(user) {
             <li class="menu-item" data-page="exceptions"><a href="exceptions.html"><i class="fas fa-exclamation-triangle"></i><span>Exception Center</span></a></li>
             <li class="menu-item" data-page="decision-center"><a href="decision-center.html"><i class="fas fa-brain"></i><span>Decision Center</span></a></li>
             <li class="menu-item" data-page="analytics"><a href="analytics.html"><i class="fas fa-chart-line"></i><span>Analytics</span></a></li>
+            <li class="menu-item" data-page="forecast"><a href="forecast.html"><i class="fas fa-hourglass-half"></i><span>Stockout Forecast</span></a></li>
             <li class="menu-item" data-page="notifications"><a href="notifications.html"><i class="fas fa-bell"></i><span>Notifications</span></a></li>
             <li class="menu-item" data-page="settings"><a href="settings.html"><i class="fas fa-cog"></i><span>Settings</span></a></li>
         </ul>
@@ -135,10 +137,15 @@ function getHeaderHTML() {
 // Nav Link Highlighting
 function highlightActiveMenu() {
     const path = window.location.pathname;
+    const search = window.location.search;
     const items = document.querySelectorAll('.menu-item');
     items.forEach(item => {
         const page = item.getAttribute('data-page');
-        if (path.includes(page)) {
+        if (page === 'add-stock' && search.includes('action=add')) {
+            item.classList.add('active');
+        } else if (page === 'inventory' && path.includes('inventory.html') && !search.includes('action=add')) {
+            item.classList.add('active');
+        } else if (path.includes(page) && page !== 'inventory' && page !== 'add-stock') {
             item.classList.add('active');
         } else {
             item.classList.remove('active');

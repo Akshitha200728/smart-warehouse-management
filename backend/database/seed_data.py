@@ -62,7 +62,8 @@ def get_seed_data():
         {"_id": "PROD-HOU08", "sku": "HOU-MUG-016", "name": "Ceramic Travel Mug 16oz", "category": "Household", "description": "Splash-proof lid insulated mug."},
         {"_id": "PROD-HOU09", "sku": "HOU-FLS-300", "name": "Tactical LED Flashlight 1000lm", "category": "Household", "description": "Waterproof zoomable flashlight."},
         {"_id": "PROD-HOU10", "sku": "HOU-ORG-003", "name": "Desktop Organizer Tray", "category": "Household", "description": "3-tier wire mesh desk file tray."},
-        {"_id": "PROD-HOU11", "sku": "HOU-TME-001", "name": "Digital Kitchen Timer", "category": "Household", "description": "Loud alarm large LCD display."}
+        {"_id": "PROD-HOU11", "sku": "HOU-TME-001", "name": "Digital Kitchen Timer", "category": "Household", "description": "Loud alarm large LCD display."},
+        {"_id": "PROD-ELE11", "sku": "ELE-SCN-001", "name": "Industrial Barcode Scanner", "category": "Electronics", "description": "Rugged wireless 2D barcode scanner for warehouse operations."}
     ]
     
     # 3. Inventory (associated with products)
@@ -106,7 +107,8 @@ def get_seed_data():
         {"_id": "INV-28", "product_id": "PROD-HOU08", "location": "D-04-02", "total_stock": 42, "available_stock": 42, "reserved_stock": 0, "damaged_stock": 0, "reorder_level": 15, "safety_stock": 5, "avg_daily_demand": 3, "lead_time": 4, "status": "Healthy"},
         {"_id": "INV-29", "product_id": "PROD-HOU09", "location": "D-05-01", "total_stock": 7, "available_stock": 7, "reserved_stock": 0, "damaged_stock": 1, "reorder_level": 10, "safety_stock": 4, "avg_daily_demand": 2, "lead_time": 5, "status": "Low Stock"}, # Low stock
         {"_id": "INV-30", "product_id": "PROD-HOU10", "location": "D-05-02", "total_stock": 28, "available_stock": 28, "reserved_stock": 0, "damaged_stock": 0, "reorder_level": 12, "safety_stock": 5, "avg_daily_demand": 2, "lead_time": 5, "status": "Healthy"},
-        {"_id": "INV-31", "product_id": "PROD-HOU11", "location": "D-06-01", "total_stock": 0, "available_stock": 0, "reserved_stock": 0, "damaged_stock": 0, "reorder_level": 10, "safety_stock": 4, "avg_daily_demand": 2, "lead_time": 6, "status": "Out of Stock"} # Out of stock
+        {"_id": "INV-31", "product_id": "PROD-HOU11", "location": "D-06-01", "total_stock": 0, "available_stock": 0, "reserved_stock": 0, "damaged_stock": 0, "reorder_level": 10, "safety_stock": 4, "avg_daily_demand": 2, "lead_time": 6, "status": "Out of Stock"}, # Out of stock
+        {"_id": "INV-32", "product_id": "PROD-ELE11", "location": "B-06-02", "total_stock": 25, "available_stock": 25, "reserved_stock": 0, "damaged_stock": 0, "reorder_level": 10, "safety_stock": 5, "avg_daily_demand": 1.5, "lead_time": 8, "status": "Healthy"}
     ]
     
     # 4. Orders (20+ orders)
